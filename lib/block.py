@@ -36,6 +36,15 @@ class Document:
             "blocks" : [block.as_json() for block in self.blocks]
         })
     
+    def get_text(self):
+        '''
+        returns all text from document; all metadata stripped
+        '''
+
+        text = ""
+        for b in self.blocks:
+            text += f"{b.text} "
+        return text
     
         
 
