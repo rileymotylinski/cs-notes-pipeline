@@ -73,7 +73,8 @@ if __name__ == "__main__":
         print("unable to process file")
         sys.exit()
     
-    print(doc.chunk_nouns())
+    for noun_chunk in doc.chunk_nouns():
+        print(noun_chunk.text)
 
     
     
