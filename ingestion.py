@@ -1,8 +1,5 @@
 import argparse
 import sys
-import spacy
-import en_core_web_sm
-
 
 from lib.lib import *
 from lib.markdown import *
@@ -75,11 +72,9 @@ if __name__ == "__main__":
     if doc == None:
         print("unable to process file")
         sys.exit()
-
-    nlp = en_core_web_sm.load()
-    process_doc = nlp(doc.get_text())
     
-    for chunk in process_doc.noun_chunks:
-        print(chunk.text)
+    print(doc.chunk_nouns())
+
+    
     
 

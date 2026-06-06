@@ -1,4 +1,5 @@
 import json
+import en_core_web_sm
 
 from lib.lib import ContentType
 
@@ -46,6 +47,16 @@ class Document:
             text += f"{b.text} "
         return text
     
+    def chunk_nouns(self):
+        nlp = en_core_web_sm.load()
+        res = []
+        for block in self.blocks:
+            process_doc = nlp(block.text)
+            
+            for chunk in process_doc.noun_chunks:
+                res.append(Block(block.id,block.block_type, block.header_context, chunk))
+            
+        return res
         
 
         
