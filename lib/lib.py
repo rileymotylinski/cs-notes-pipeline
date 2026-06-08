@@ -18,6 +18,13 @@ class ContentType(Enum):
     NULL = 8
                 
 def is_candidate_concept(block: Block) -> bool:
+    '''
+    algorithmic categorization of blocks
+    args: block - block to be classified
+    returns: bool - True if possible "concept", False, if it's _not_ a candidate concept, and `None` if it's unsure.
+    '''
+
+    # not enough words/letters
     if len(block.text.split()) > 5 or len(block.text) < 3:
         return False
 

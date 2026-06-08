@@ -31,6 +31,8 @@ class MarkdownParser():
             if len(lines[i]) <= 1:
                 continue
             
+            # identifiers will always be seperated by a space
+            # e.g. `### This is a heading`
             first_space = lines[i].find(" ")
             
             # TODO: currently consuming line by line; what about multiline bp?

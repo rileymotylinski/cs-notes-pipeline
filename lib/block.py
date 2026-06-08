@@ -11,6 +11,11 @@ class Block():
         self.text = text
     
     def as_json(self):
+        """
+        returns formatted version of a block fo easier json parsing
+        args: none
+        returns: json-fied version of a block
+        """
         return {
             "id": self.id,
             "block_type": self.block_type.name,
@@ -31,6 +36,11 @@ class Document:
         self.blocks.append(b)
 
     def as_json(self):
+        """
+        returns formatted version of a block fo easier json parsing
+        args: none
+        returns: json-fied version of a document
+        """
         return json.dumps({
             "course_code" : self.course_code,
             "semester" : self.semester,
@@ -40,6 +50,8 @@ class Document:
     def get_text(self):
         '''
         returns all text from document; all metadata stripped
+        args: none
+        returns: all text from composite chunks of a document
         '''
 
         text = ""
@@ -48,6 +60,11 @@ class Document:
         return text
     
     def chunk_nouns(self):
+        '''
+        breaks document into possible concept chunks
+        args: none
+        returns: candidate concepts of a document
+        '''
         nlp = en_core_web_sm.load()
         res = []
         for block in self.blocks:
