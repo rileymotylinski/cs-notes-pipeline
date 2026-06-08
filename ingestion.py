@@ -1,5 +1,6 @@
 import argparse
 import sys
+import os
 
 from lib.lib import *
 from lib.markdown import *
@@ -14,32 +15,17 @@ FILETYPES = (
     "pdf"
 )
 
-if __name__ == "__main__":
-    # setup
-    parser = argparse.ArgumentParser(
-        prog="Document Ingester",
-        description="Converts markdown/typst/pdfs into clean JSON objects",
-    )
-    # positional argument (1) for file
-    # TODO: assumes file is in cwd
-    parser.add_argument("filename") 
-    parser.add_argument("course_code")
-    parser.add_argument("semester")
-
-    # reading args
-    args = parser.parse_args()
-    filename = args.filename
-    course_code = args.course_code
-    semester = args.semester
+def handle_file_input(filename, course_code, semester):
     file_extension = get_extension(filename)
 
     if file_extension == None:
-        print("unable to read filename")
+        print(f"unable to read filename: {filename}")
         sys.exit()
 
     if file_extension not in FILETYPES:
-        print("unsupported filetype")
-        sys.exit()
+        print(f"unsupported filetype: {file_extension}")
+        return
+        # sys.exit()
 
     doc = None
 
@@ -75,6 +61,48 @@ if __name__ == "__main__":
     
     for noun_chunk in doc.chunk_nouns():
         print(noun_chunk.text)
+
+def handle_directory_input(directory, course_code, semester):
+    directory = directory.strip("/")
+    for file in os.listdir(directory):
+        handle_file_input(f"{directory}/{file}", course_code, semester)
+
+
+if __name__ == "__main__":
+    # setup
+    parser = argparse.ArgumentParser(
+        prog="Document Ingester",
+        description="Converts markdown/typst/pdfs into clean JSON objects",
+    )
+    # positional argument (1) for file
+    # TODO: assumes file is in cwd
+    
+    parser.add_argument("-f", "--filename") 
+    parser.add_argument('-d', '--directory')
+    parser.add_argument("course_code")
+    parser.add_argument("semester")
+    
+
+    # reading args
+    args = parser.parse_args()
+    filename = args.filename
+    directory = args.directory
+    course_code = args.course_code
+    semester = args.semester
+
+    if filename != None and directory != None:
+        print("cannot process both directory and file")
+
+    if filename != None:
+        handle_file_input(filename, course_code, semester)
+    
+    elif directory != None:
+        handle_directory_input(directory, course_code, semester)
+
+
+    
+
+    
 
     
     

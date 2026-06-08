@@ -1,5 +1,4 @@
 from enum import Enum
-from block import Block
 
 def get_extension(filename: str):
     if filename.count(".") == 1:
@@ -17,7 +16,7 @@ class ContentType(Enum):
     TEXT = 7
     NULL = 8
                 
-def is_candidate_concept(block: Block) -> bool:
+def is_candidate_concept(block) -> bool:
     '''
     algorithmic categorization of blocks
     args: block - block to be classified
