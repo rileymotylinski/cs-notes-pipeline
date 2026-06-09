@@ -15,7 +15,7 @@ FILETYPES = (
     "pdf"
 )
 
-def handle_file_input(filename, course_code, semester):
+def handle_file_input(filename, course_code, semester) -> Document:
     file_extension = get_extension(filename)
 
     if file_extension == None:
@@ -24,8 +24,18 @@ def handle_file_input(filename, course_code, semester):
 
     if file_extension not in FILETYPES:
         print(f"unsupported filetype: {file_extension}")
-        return
-        # sys.exit()
+        sys.exit()
+
+    doc = parse_file(filename, file_extension, course_code, semester)
+
+    if doc == None:
+        print("unable to parse file")
+        sys.exit()
+    
+    return doc
+    
+
+def parse_file(filename, file_extension, course_code, semester) -> Document:
 
     doc = None
 
@@ -38,7 +48,6 @@ def handle_file_input(filename, course_code, semester):
 
             doc = Document(res, course_code, semester)
 
-            print(doc.as_json())
             f.close()
 
  
@@ -52,20 +61,31 @@ def handle_file_input(filename, course_code, semester):
 
             doc = Document(res, course_code, semester)
 
-            print(doc.as_json())
             f.close()
-
-    if doc == None:
-        print("unable to process file")
-        sys.exit()
     
-    for noun_chunk in doc.chunk_nouns():
-        print(noun_chunk.text)
+    return doc
 
-def handle_directory_input(directory, course_code, semester):
+def handle_directory_input(directory, course_code, semester) -> list[Document]:
     directory = directory.strip("/")
+    res = []
+    # TODO : handle subdirectories/non-files
     for file in os.listdir(directory):
-        handle_file_input(f"{directory}/{file}", course_code, semester)
+        file_extension = get_extension(file)
+
+        if file_extension == None:
+            print("unable to read file extension")
+            continue
+
+        processed = parse_file(f"{directory}/{file}", file_extension, course_code, semester)
+
+        # unlike individual file parsing, we don't want to kill script when we come across a file we cannot parse
+        if processed == None:
+            print(f"unable to parse file: {file}")
+            continue
+
+        res.append(processed)
+    
+    return res
 
 
 if __name__ == "__main__":
@@ -82,7 +102,6 @@ if __name__ == "__main__":
     parser.add_argument("course_code")
     parser.add_argument("semester")
     
-
     # reading args
     args = parser.parse_args()
     filename = args.filename
