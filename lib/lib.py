@@ -1,5 +1,7 @@
 from enum import Enum
 
+
+
 def get_extension(filename: str):
     if filename.count(".") == 1:
         return filename.split(".")[1]
@@ -16,6 +18,7 @@ class ContentType(Enum):
     TEXT = 7
     NULL = 8
                 
+# TODO : cannot import block module here? I want type annotations
 def is_candidate_concept(block) -> bool:
     '''
     algorithmic categorization of blocks

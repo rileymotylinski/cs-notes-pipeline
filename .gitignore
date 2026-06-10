@@ -2,3 +2,4 @@
 /venv/
 .vscode
 **/lib/test_notes
+**/labeled_data

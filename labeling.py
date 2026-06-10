@@ -1,4 +1,7 @@
 from ingestion import handle_directory_input
+from lib.lib import is_candidate_concept
+
+import pickle
 
 """
 purpose: easier mass labeling of chunks for training data
@@ -11,9 +14,8 @@ if __name__ == "__main__":
 
     for doc in processed_docs:
         for block in doc.blocks:
-            blocks.append(block)
+                blocks.append(block)
     
-    processed_blocks = []
 
     print("""you will now begin labeling blocks:
           
@@ -24,12 +26,38 @@ if __name__ == "__main__":
           """)
     valid_responses = set(("0", "1", "2")) # re: above
 
-    for block in blocks:
-        print(block.text)
-        res = None
+    i = 0
+    processed_blocks = []
 
-        while res not in valid_responses:
-            res = input("rate this block: ")
+    while i < len(blocks) and i < 50:
+        block = blocks[i]
+        res = is_candidate_concept(block)
+
+        print(block.text)
         
-        blocks.append((block, res))
+        if not res:
+            while res not in valid_responses:
+                res = input("rate this block: ")
+
+                if res not in valid_responses:
+                    print("failed!")
         
+        else:
+            match res:
+                case 1:
+                    print("auto-labeled as concept")
+                case 0:
+                    print("auto-labeled as not a concept")
+
+        processed_blocks.append((block, res))
+        i += 1
+
+        print()
+    
+    with open("lib/labeled_data/labeled.txt", "wb") as f: # where the labeled data exists
+        for block in processed_blocks:
+            pickle.dump(block,f,pickle.DEFAULT_PROTOCOL)
+    
+    print("wrote objects to file!")
+
+    
