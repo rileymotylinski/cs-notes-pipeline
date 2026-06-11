@@ -7,6 +7,18 @@ import pickle
 purpose: easier mass labeling of chunks for training data
 """
 
+def encode_bool(val: bool):
+    """
+    purpose: encodes a boolean value as classified concept, e.g. true -> 1 (see below)
+    """
+
+    match val:
+        case True: 
+            return 1
+        case False:
+            return 0
+    return 2
+
 if __name__ == "__main__":
     processed_docs = handle_directory_input("../umn/csci2021/notes", "csci2021", "2")
   
@@ -22,7 +34,6 @@ if __name__ == "__main__":
             (0) : not a concept
             (1) : concept
             (2) : unsure
-          
           """)
     valid_responses = set(("0", "1", "2")) # re: above
 
@@ -30,12 +41,13 @@ if __name__ == "__main__":
     processed_blocks = []
 
     while i < len(blocks) and i < 50:
+        print(i)
         block = blocks[i]
-        res = is_candidate_concept(block)
+        res = encode_bool(is_candidate_concept(block))
 
         print(block.text)
         
-        if not res:
+        if res == 2:
             while res not in valid_responses:
                 res = input("rate this block: ")
 
