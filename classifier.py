@@ -1,14 +1,20 @@
 
 import numpy as np
 import pickle
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 
 if __name__ == "__main__":
-    print("importing sentence transformer..")
+    print("importing sentence transformer...")
     from sentence_transformers import SentenceTransformer
     print("finished!")
-    
-    # model = SentenceTransformer('all-MiniLM-L6-v2')
+
+    print("creating model...")
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    print("finished!")
+
     data = []
 
     with open('lib/labeled_data/labeled.txt', "rb") as f:
@@ -18,4 +24,20 @@ if __name__ == "__main__":
             except EOFError:
                 break
 
-    print(data[0][1])
+    texts = []
+    labels = []
+    for classified in data:
+        texts.append(classified[0].text)
+        labels.append(classified[1])
+    
+    X = model.encode(texts)
+    y = np.array(labels)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    clf = LogisticRegression()
+    clf.fit(X_train, y_train)
+
+    y_predict = clf.predict(X_test)
+
+    print(classification_report(y_test, y_predict))
