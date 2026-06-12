@@ -1,9 +1,13 @@
-# from sentence_transformers import SentenceTransformer
+
 import numpy as np
 import pickle
 
 
 if __name__ == "__main__":
+    print("importing sentence transformer..")
+    from sentence_transformers import SentenceTransformer
+    print("finished!")
+    
     # model = SentenceTransformer('all-MiniLM-L6-v2')
     data = []
 

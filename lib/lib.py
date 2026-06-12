@@ -29,6 +29,10 @@ def is_candidate_concept(block) -> bool:
     # not enough words/letters
     if len(block.text.split()) > 5 or len(block.text) < 3:
         return False
+    
+    # bullet points
+    if block.text.find("*") == 0 or block.text.find("-") == 0:
+        return False
 
     if block.block_type == ContentType.HEADING:
         return True
