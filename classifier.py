@@ -4,6 +4,9 @@ import pickle
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+import os
+# prevents redownloading model every time - don't want to hit
+os.environ['HF_HUB_OFFLINE'] = '1'
 
 
 if __name__ == "__main__":
@@ -11,9 +14,8 @@ if __name__ == "__main__":
     from sentence_transformers import SentenceTransformer
     print("finished!")
 
-    print("creating model...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    print("finished!")
+    model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder='./model_cache')
+
 
     data = []
 
