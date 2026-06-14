@@ -14,17 +14,24 @@ if __name__ == "__main__":
     from sentence_transformers import SentenceTransformer
     print("finished!")
 
+    # caching model avoids hitting the hugging face api everytime
+    if os.listdir("/").index("model_cache") == -1:
+        print("creating model_cache directory...")
     model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder='./model_cache')
 
 
     data = []
-
-    with open('lib/labeled_data/labeled.txt', "rb") as f:
-        while True:
-            try:
-                data.append(pickle.load(f))
-            except EOFError:
-                break
+    try:
+        with open('lib/labeled_data/labeled.txt', "rb") as f:
+            while True:
+                try:
+                    data.append(pickle.load(f))
+                except EOFError:
+                    break
+    except FileNotFoundError:
+        print("No labeled directory found. Please create " \
+        "labeled data using the labeling.py script in the " \
+        "lib/labeled_data directory and rerun this script")
 
     texts = []
     labels = []
