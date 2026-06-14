@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import os
-# prevents redownloading model every time - don't want to hit
+# prevents redownloading model every time - don't want to hit huggingface api
 os.environ['HF_HUB_OFFLINE'] = '1'
 
 
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     print("finished!")
 
     # caching model avoids hitting the hugging face api everytime
-    if os.listdir("/").index("model_cache") == -1:
+    if os.listdir("/").count("model_cache") == 0:
         print("creating model_cache directory...")
     model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder='./model_cache')
 

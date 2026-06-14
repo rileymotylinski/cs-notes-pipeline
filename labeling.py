@@ -37,34 +37,47 @@ if __name__ == "__main__":
           """)
     valid_responses = set(("0", "1", "2")) # re: above
 
-    i = 0
+    i, concepts, not_concepts, unsures = 0,0,0,0
+
     processed_blocks = []
 
-    while i < len(blocks) and i < 50:
+    while i < len(blocks) and i < 500:
         print(i)
         block = blocks[i]
         res = encode_bool(is_candidate_concept(block))
 
         print(block.text)
         
-        if res == 2:
+        if res == 1 or res == 0:
+            match res:
+                case 1:
+                    concepts += 1
+                    print("auto-labeled as concept")
+                case 0:
+                    not_concepts += 1
+                    print("auto-labeled as not a concept")
+
+        # TODO: refactor this
+        else:
             while res not in valid_responses:
                 res = input("rate this block: ")
 
                 if res not in valid_responses:
                     print("failed!")
-        
-        else:
-            match res:
-                case 1:
-                    print("auto-labeled as concept")
-                case 0:
-                    print("auto-labeled as not a concept")
+            unsures += 1
+            
 
         processed_blocks.append((block, res))
         i += 1
 
         print()
+    
+    print(f"""
+        Final Report
+          concepts: {concepts}
+          not concepts: {not_concepts}
+          unsure: {unsures}
+    """)
     
     with open("lib/labeled_data/labeled.txt", "wb") as f: # where the labeled data exists
         for block in processed_blocks:
