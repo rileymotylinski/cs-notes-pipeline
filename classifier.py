@@ -5,9 +5,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import os
+import joblib
 # prevents redownloading model every time - don't want to hit huggingface api
 os.environ['HF_HUB_OFFLINE'] = '1'
 
+"""
+purpose: train a model on the output of the labeling script, then dump the embedding model
+"""
 
 if __name__ == "__main__":
     print("importing sentence transformer...")
@@ -48,5 +52,10 @@ if __name__ == "__main__":
     clf.fit(X_train, y_train)
 
     y_predict = clf.predict(X_test)
+
+    try:
+        joblib.dump(clf, 'models/concept_classifier.pkl')
+    except FileNotFoundError:
+        print("no /models/ directory. Please create one and rerun this script")
 
     print(classification_report(y_test, y_predict))
