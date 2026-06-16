@@ -31,7 +31,7 @@ def is_candidate_concept(block) -> bool:
         return False
     
     # bullet points
-    if block.text.find("*") == 0 or block.text.find("-") == 0:
+    if block.text.split()[0] == "*" or block.text.split()[0] == "-":
         return False
 
     if block.block_type == ContentType.HEADING:

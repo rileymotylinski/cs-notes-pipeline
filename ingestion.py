@@ -87,6 +87,16 @@ def handle_directory_input(directory, course_code, semester) -> list[Document]:
     
     return res
 
+def ingest(filename=None, directory=None, course_code="", semester=""):
+    if filename != None and directory != None:
+        print("cannot process both directory and file")
+
+    if filename != None:
+        return handle_file_input(filename, course_code, semester)
+    
+    elif directory != None:
+        return handle_directory_input(directory, course_code, semester)
+
 
 if __name__ == "__main__":
     # setup
@@ -109,20 +119,4 @@ if __name__ == "__main__":
     course_code = args.course_code
     semester = args.semester
 
-    if filename != None and directory != None:
-        print("cannot process both directory and file")
-
-    if filename != None:
-        handle_file_input(filename, course_code, semester)
-    
-    elif directory != None:
-        handle_directory_input(directory, course_code, semester)
-
-
-    
-
-    
-
-    
-    
-
+    ingest(filename,directory,course_code,semester)
