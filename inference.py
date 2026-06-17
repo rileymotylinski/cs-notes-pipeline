@@ -3,10 +3,12 @@ from sentence_transformers import SentenceTransformer
 import spacy
 import argparse
 from ingestion import ingest
+from lib.lib import is_candidate_concept
+
 
 
 if __name__ == "__main__":
-    clf = joblib.load("models/concept_classifier.pk1")
+    clf = joblib.load("models/concept_classifier.pkl")
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
     nlp = spacy.load("en_core_web_sm")
 
@@ -22,6 +24,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
     filename = args.filename
 
-    parsed_document = ingest(filename)
+    concepts = []
+    possible_concepts = []
+    parsed_document = ingest(filename=filename)
 
-    for chunk in parsed_document.chunk_nouns()
+    for chunk in parsed_document.blocks:
+        match is_candidate_concept(chunk):
+            case 1:
+                concepts.append(chunk.text)
+            case 2:
+                possible_concepts.append(chunk.text)
+    
+    classified = []
+    if possible_concepts:
+        X = embedder.encode(possible_concepts)
+        preds = clf.predict(X)
+        classified = [c for c, p in zip(possible_concepts, preds) if p == 1]
+    
+    print(classified)
