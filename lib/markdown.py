@@ -3,7 +3,7 @@ from lib.block import Block
 import re
 
 
-def ident_to_markdown_type(ident: str):
+def ident_to_content_type(ident: str):
     match ident:
         case "#":
             return ContentType.HEADING
@@ -36,7 +36,7 @@ class MarkdownParser():
             first_space = lines[i].find(" ")
             
             # TODO: currently consuming line by line; what about multiline bp?
-            block_type = ident_to_markdown_type(lines[i][0:first_space])
+            block_type = ident_to_content_type(lines[i][0:first_space])
             text = lines[i][first_space + 1:]
 
             # update current_header

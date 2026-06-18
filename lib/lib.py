@@ -1,7 +1,5 @@
 from enum import Enum
 
-
-
 def get_extension(filename: str):
     if filename.count(".") == 1:
         return filename.split(".")[1]

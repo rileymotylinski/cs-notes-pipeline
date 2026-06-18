@@ -15,26 +15,6 @@ FILETYPES = (
     "pdf"
 )
 
-def handle_file_input(filename, course_code, semester) -> Document:
-    file_extension = get_extension(filename)
-
-    if file_extension == None:
-        print(f"unable to read filename: {filename}")
-        sys.exit()
-
-    if file_extension not in FILETYPES:
-        print(f"unsupported filetype: {file_extension}")
-        sys.exit()
-
-    doc = parse_file(filename, file_extension, course_code, semester)
-
-    if doc == None:
-        print("unable to parse file")
-        sys.exit()
-    
-    return doc
-    
-
 def parse_file(filename, file_extension, course_code, semester) -> Document:
 
     doc = None
@@ -65,39 +45,58 @@ def parse_file(filename, file_extension, course_code, semester) -> Document:
     
     return doc
 
+def handle_file_input(filename, course_code, semester) -> Document:
+    file_extension = get_extension(filename)
+
+    if file_extension == None:
+        print(f"unable to read filename: {filename}")
+        sys.exit()
+
+    if file_extension not in FILETYPES:
+        print(f"unsupported filetype: {file_extension}")
+        sys.exit()
+
+    doc = parse_file(filename, file_extension, course_code, semester)
+
+    if doc == None:
+        print("unable to parse file")
+        return None
+    
+    return doc
+
 def handle_directory_input(directory, course_code, semester) -> list[Document]:
     directory = directory.strip("/")
     res = []
-    # TODO : handle subdirectories/non-files
     for file in os.listdir(directory):
-        file_extension = get_extension(file)
+        processed = handle_file_input(file, course_code, semester)
 
-        if file_extension == None:
-            print("unable to read file extension")
+        if not processed:
             continue
-
-        processed = parse_file(f"{directory}/{file}", file_extension, course_code, semester)
-
-        # unlike individual file parsing, we don't want to kill script when we come across a file we cannot parse
-        if processed == None:
-            print(f"unable to parse file: {file}")
-            continue
-
+        
         res.append(processed)
+
     
     return res
 
-def ingest(filename=None, directory=None, course_code="", semester=""):
+
+def ingest(filename=None, directory=None, course_code="", semester="") -> (Document | list[Document] | None):
+    """
+    receives either a file or directory and spits out a processed document object
+    """
+    res = None
+
     if filename != None and directory != None:
         print("cannot process both directory and file")
 
-    if filename != None:
-        return handle_file_input(filename, course_code, semester)
+    elif filename != None:
+        res = handle_file_input(filename, course_code, semester)
     
     elif directory != None:
-        return handle_directory_input(directory, course_code, semester)
+        res = handle_directory_input(directory, course_code, semester)
 
+    return res
 
+# command line interface for ingest function
 if __name__ == "__main__":
     # setup
     parser = argparse.ArgumentParser(
@@ -119,4 +118,17 @@ if __name__ == "__main__":
     course_code = args.course_code
     semester = args.semester
 
-    ingest(filename,directory,course_code,semester)
+    # normalize as document object
+    res = ingest(filename,directory,course_code,semester)
+
+    if not res:
+        print("unable to read document(s)")
+        sys.exit()
+    
+    if filename:
+        for block in res.blocks:
+            print(block.text)
+    elif directory:
+        for file in res:
+            for block in file.blocks:
+                print(block.text)

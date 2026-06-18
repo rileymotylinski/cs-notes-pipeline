@@ -3,6 +3,7 @@ from sentence_transformers import SentenceTransformer
 import spacy
 import argparse
 from ingestion import ingest
+import sys
 from lib.lib import is_candidate_concept
 
 
@@ -17,7 +18,6 @@ if __name__ == "__main__":
         description="Extracts Concepts from Document",
     )
     # positional argument (1) for file
-    # TODO: assumes file is in cwd
     
     parser.add_argument("-f", "--filename") 
 
@@ -27,6 +27,10 @@ if __name__ == "__main__":
     concepts = []
     possible_concepts = []
     parsed_document = ingest(filename=filename)
+
+    if not parsed_document:
+        print(f"unable to parse document: {filename}")
+        sys.exit()
 
     for chunk in parsed_document.blocks:
         match is_candidate_concept(chunk):

@@ -1,5 +1,6 @@
-from ingestion import handle_directory_input
+from ingestion import ingest
 from lib.lib import is_candidate_concept
+import sys
 
 import pickle
 
@@ -20,8 +21,13 @@ def encode_bool(val: bool):
     return 2
 
 if __name__ == "__main__":
-    processed_docs = handle_directory_input("../umn/csci2021/notes", "csci2021", "2")
-  
+    dir = "../umn/csci2021/notes"
+    processed_docs = ingest(directory=dir, course_code="csci2021", semester="2")
+    
+    if not processed_docs:
+        print(f"unable to read directory: {dir}")
+        sys.exit()
+
     blocks = []
 
     for doc in processed_docs:
