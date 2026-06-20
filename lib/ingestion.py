@@ -96,39 +96,3 @@ def ingest(filename=None, directory=None, course_code="", semester="") -> (Docum
 
     return res
 
-# command line interface for ingest function
-if __name__ == "__main__":
-    # setup
-    parser = argparse.ArgumentParser(
-        prog="Document Ingester",
-        description="Converts markdown/typst/pdfs into clean JSON objects",
-    )
-    # positional argument (1) for file
-    # TODO: assumes file is in cwd
-    
-    parser.add_argument("-f", "--filename") 
-    parser.add_argument('-d', '--directory')
-    parser.add_argument("course_code")
-    parser.add_argument("semester")
-    
-    # reading args
-    args = parser.parse_args()
-    filename = args.filename
-    directory = args.directory
-    course_code = args.course_code
-    semester = args.semester
-
-    # normalize as document object
-    res = ingest(filename,directory,course_code,semester)
-
-    if not res:
-        print("unable to read document(s)")
-        sys.exit()
-    
-    if filename:
-        for block in res.blocks:
-            print(block.text)
-    elif directory:
-        for file in res:
-            for block in file.blocks:
-                print(block.text)

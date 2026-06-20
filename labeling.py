@@ -1,6 +1,7 @@
-from ingestion import ingest
+from lib.ingestion import ingest
 from lib.lib import is_candidate_concept
 import sys
+import argparse
 
 import pickle
 
@@ -21,7 +22,9 @@ def encode_bool(val: bool):
     return 2
 
 if __name__ == "__main__":
-    dir = "../umn/csci2021/notes"
+    dir = "/lib/test_notes/"
+
+    # TODO: accept course_code and semester as arguments
     processed_docs = ingest(directory=dir, course_code="csci2021", semester="2")
     
     if not processed_docs:

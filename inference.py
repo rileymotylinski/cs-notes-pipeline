@@ -2,7 +2,7 @@ import joblib
 from sentence_transformers import SentenceTransformer
 import spacy
 import argparse
-from ingestion import ingest
+from lib.ingestion import ingest
 import sys
 from lib.lib import is_candidate_concept
 
