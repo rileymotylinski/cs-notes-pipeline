@@ -50,11 +50,11 @@ def handle_file_input(filename, course_code, semester) -> Document:
 
     if file_extension == None:
         print(f"unable to read filename: {filename}")
-        sys.exit()
+        return
 
     if file_extension not in FILETYPES:
         print(f"unsupported filetype: {file_extension}")
-        sys.exit()
+        return
 
     doc = parse_file(filename, file_extension, course_code, semester)
 
@@ -68,7 +68,8 @@ def handle_directory_input(directory, course_code, semester) -> list[Document]:
     directory = directory.strip("/")
     res = []
     for file in os.listdir(directory):
-        processed = handle_file_input(file, course_code, semester)
+        print(file)
+        processed = handle_file_input(f"{directory}/{file}", course_code, semester)
 
         if not processed:
             continue
