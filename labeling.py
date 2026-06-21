@@ -31,12 +31,7 @@ if __name__ == "__main__":
         print(f"unable to read directory: {dir}")
         sys.exit()
 
-    blocks = []
-
-    for doc in processed_docs:
-        for block in doc.blocks:
-                blocks.append(block)
-    
+    blocks = [doc.chunk_nouns() for doc in processed_docs]
 
     print("""you will now begin labeling blocks:
           
@@ -57,14 +52,12 @@ if __name__ == "__main__":
 
         print(block.text)
         
-        if res == 1 or res == 0:
-            match res:
-                case 1:
-                    concepts += 1
-                    print("auto-labeled as concept")
-                case 0:
-                    not_concepts += 1
-                    print("auto-labeled as not a concept")
+        if res == 1:
+            concepts += 1
+            print("auto-labeled as concept")        
+        elif res == 0:
+            not_concepts += 1
+            print("auto-labeled as not a concept")
 
         # TODO: refactor this
         else:
