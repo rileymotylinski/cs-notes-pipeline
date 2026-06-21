@@ -48,6 +48,7 @@ class MarkdownParser():
                 text = lines[i][0:]
 
             # notes (probably) wont have > 9999 lines
+            # This is the *first* pass where we are simply splitting by line into seperate chunks
             current_block: Block = Block(f"{i:04}",block_type,header_context=self.current_header,text=text)
 
             res.append(current_block)

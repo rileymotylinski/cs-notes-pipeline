@@ -21,6 +21,8 @@ def encode_bool(val: bool):
             return 0
     return 2
 
+
+
 if __name__ == "__main__":
     dir = "/lib/test_notes/"
 
@@ -31,7 +33,12 @@ if __name__ == "__main__":
         print(f"unable to read directory: {dir}")
         sys.exit()
 
-    blocks = [doc.chunk_nouns() for doc in processed_docs]
+    blocks = []
+    # flattening out chunked nouns
+    print("chunking nouns...")
+    for doc in processed_docs:
+        blocks += doc.blocks
+    print("finished!")
 
     print("""you will now begin labeling blocks:
           
@@ -45,12 +52,12 @@ if __name__ == "__main__":
 
     processed_blocks = []
 
-    while i < len(blocks) and i < 500:
+    while i < len(blocks) and i < 50:
         print(i)
         block = blocks[i]
+        print(block.text)
         res = encode_bool(is_candidate_concept(block))
 
-        print(block.text)
         
         if res == 1:
             concepts += 1
@@ -58,16 +65,25 @@ if __name__ == "__main__":
         elif res == 0:
             not_concepts += 1
             print("auto-labeled as not a concept")
-
-        # TODO: refactor this
         else:
             while res not in valid_responses:
                 res = input("rate this block: ")
 
                 if res not in valid_responses:
                     print("failed!")
-            unsures += 1
-            
+                # TODO: this is repeat of code above; refactor
+                else:
+                    if res == 1:
+                        concepts += 1
+                        print("labeled as concept")        
+                    elif res == 0:
+                        not_concepts += 1
+                        print("labeled as not a concept")
+
+                    # TODO: refactor this
+                    elif res == 2:
+                        unsures += 1
+                        print("labeled as unsure")
 
         processed_blocks.append((block, res))
         i += 1

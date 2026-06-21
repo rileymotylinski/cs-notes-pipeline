@@ -68,13 +68,13 @@ def handle_directory_input(directory, course_code, semester) -> list[Document]:
     directory = directory.strip("/")
     res = []
     for file in os.listdir(directory):
-        print(file)
         processed = handle_file_input(f"{directory}/{file}", course_code, semester)
 
         if not processed:
             continue
         
         res.append(processed)
+        print(f"processed file: {file}")
 
     
     return res
