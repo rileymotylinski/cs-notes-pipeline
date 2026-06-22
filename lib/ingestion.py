@@ -53,7 +53,7 @@ def handle_file_input(filename, course_code, semester) -> Document:
         return
 
     if file_extension not in FILETYPES:
-        print(f"unsupported filetype: {file_extension}")
+        print(f"unable to process {filename} unsupported filetype: {file_extension}")
         return
 
     doc = parse_file(filename, file_extension, course_code, semester)

@@ -21,8 +21,6 @@ def encode_bool(val: bool):
             return 0
     return 2
 
-
-
 if __name__ == "__main__":
     dir = "/lib/test_notes/"
 
@@ -42,17 +40,18 @@ if __name__ == "__main__":
 
     print("""you will now begin labeling blocks:
           
-            (0) : not a concept
+            (0) : not a concept (or press enter to quick-label)
             (1) : concept
             (2) : unsure
           """)
-    valid_responses = set(("0", "1", "2")) # re: above
+    valid_responses = set(("0", "1", "2", "")) # re: above
 
     i, concepts, not_concepts, unsures = 0,0,0,0
 
     processed_blocks = []
 
-    while i < len(blocks) and i < 50:
+    # only label 500 concepts
+    while i < len(blocks) and i < 500:
         print(i)
         block = blocks[i]
         print(block.text)
@@ -70,21 +69,21 @@ if __name__ == "__main__":
                 res = input("rate this block: ")
 
                 if res not in valid_responses:
-                    print("failed!")
+                    print("failed! Please input a valid response (0,1,2)")
                 # TODO: this is repeat of code above; refactor
                 else:
-                    if res == 1:
+                    if res == "1":
                         concepts += 1
                         print("labeled as concept")        
-                    elif res == 0:
+                    elif res == "0" or res == "":
                         not_concepts += 1
                         print("labeled as not a concept")
 
                     # TODO: refactor this
-                    elif res == 2:
+                    elif res == "2":
                         unsures += 1
                         print("labeled as unsure")
-
+                
         processed_blocks.append((block, res))
         i += 1
 
