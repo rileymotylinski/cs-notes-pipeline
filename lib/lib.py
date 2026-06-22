@@ -1,9 +1,9 @@
 from enum import Enum
 
 def get_extension(filename: str):
-    if filename.count(".") == 1:
-        return filename.split(".")[1]
-    return
+    
+    return filename[filename.rindex(".")+1:]
+
 
 class ContentType(Enum):
     DOCUMENT = 0
