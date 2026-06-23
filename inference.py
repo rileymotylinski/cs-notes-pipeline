@@ -33,16 +33,23 @@ if __name__ == "__main__":
         sys.exit()
 
     for chunk in parsed_document.blocks:
+      
         match is_candidate_concept(chunk):
             case 1:
                 concepts.append(chunk.text)
             case 2:
                 possible_concepts.append(chunk.text)
-    
+    """
     classified = []
     if possible_concepts:
         X = embedder.encode(possible_concepts)
         preds = clf.predict(X)
         classified = [c for c, p in zip(possible_concepts, preds) if p == 1]
-    
+    """
+    text_blocks = [c.text for c in parsed_document.blocks]
+    X = embedder.encode(text_blocks)
+    preds = clf.predict(X)
+    classified = [c for c, p in zip(text_blocks, preds) if p == 2]
+
+
     print(classified)

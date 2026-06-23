@@ -36,3 +36,6 @@ def is_candidate_concept(block) -> bool:
         return True
     
     return None # in need of classification
+
+def remove_articles(s: str):
+    return s.replace("the", "").replace("this", "").replace("*", "").strip()

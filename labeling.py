@@ -45,7 +45,7 @@ if __name__ == "__main__":
             (2) : unsure
           """)
     valid_responses = set(("0", "1", "2", "")) # re: above
-
+    seen_concepts = set()
     i, concepts, not_concepts, unsures = 0,0,0,0
 
     processed_blocks = []
@@ -54,8 +54,19 @@ if __name__ == "__main__":
     while i < len(blocks) and i < 500:
         print(i)
         block = blocks[i]
+
+        if block.text in seen_concepts:
+            print("skipped as repeat concept")
+            i += 1
+            continue
+        else:
+            seen_concepts.add(block.text)
+        
+
         print(block.text)
         res = encode_bool(is_candidate_concept(block))
+
+
 
         
         if res == 1:

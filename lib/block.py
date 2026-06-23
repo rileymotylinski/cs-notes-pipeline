@@ -1,7 +1,7 @@
 import json
 import en_core_web_sm
 
-from lib.lib import ContentType
+from lib.lib import ContentType, remove_articles
 
 class Block():
     def __init__(self,id: str, block_type:ContentType, header_context: str="", text: str=""):
@@ -22,7 +22,7 @@ class Block():
             "header_context": self.header_context,
             "text": self.text
         }
-        
+
 
 # a single file of notes is a document, or a collection of blocks
 class Document:
@@ -34,6 +34,7 @@ class Document:
             # this is the second pass of split blocks
             # TODO: I think this is the best way to do it? Constructing it in the parser would require having two sources of truth which I don't like
             if block.block_type.value <= ContentType.SUBSUBHEADING.value and block.block_type.value  >= ContentType.HEADING.value:
+                block.text = remove_articles(block.text.lower())
                 self.blocks.append(block)
                 continue
 
@@ -42,7 +43,7 @@ class Document:
             process_doc = nlp(block.text)
             
             for chunk in process_doc.noun_chunks:
-                res.append(Block(block.id,block.block_type, block.header_context, chunk.text))
+                res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text).lower()))
             
             self.blocks += res
   
@@ -77,12 +78,7 @@ class Document:
             text += f"{b.text} "
         return text
     
-    def chunk_nouns(self):
-        '''
-        breaks document into possible concept chunks
-        args: none
-        returns: candidate concepts of a document
-        '''
+
         
         
 
