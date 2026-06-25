@@ -16,10 +16,10 @@ def encode_bool(val: bool):
 
     match val:
         case True: 
-            return 1
+            return 1 # concept
         case False:
-            return 0
-    return 2
+            return 0 # not a concept
+    return 2 # unsure
 
 if __name__ == "__main__":
     dir = "/lib/test_notes/"
@@ -52,48 +52,37 @@ if __name__ == "__main__":
 
     # only label 500 concepts
     while i < len(blocks) and i < 500:
+        print()
         print(i)
         block = blocks[i]
-
-        if block.text in seen_concepts:
-            print("skipped as repeat concept")
+        res = encode_bool(is_candidate_concept(block))
+        print(block.text)
+        if block.text in seen_concepts or res != 2:
+            # if a concept is auto-lableed, there is no ambiguity; only want to classify ambiguious cases w/ classifier
+            print("skipped as repeat or unambiguious concept")
             i += 1
             continue
         else:
             seen_concepts.add(block.text)
-        
+    
+        while res not in valid_responses:
+            res = input("rate this block: ")
 
-        print(block.text)
-        res = encode_bool(is_candidate_concept(block))
+            if res not in valid_responses:
+                print("failed! Please input a valid response (0,1,2)")
+            # TODO: this is repeat of code above; refactor
+            else:
+                if res == "1":
+                    concepts += 1
+                    print("labeled as concept")        
+                elif res == "0" or res == "":
+                    not_concepts += 1
+                    print("labeled as not a concept")
 
-
-
-        
-        if res == 1:
-            concepts += 1
-            print("auto-labeled as concept")        
-        elif res == 0:
-            not_concepts += 1
-            print("auto-labeled as not a concept")
-        else:
-            while res not in valid_responses:
-                res = input("rate this block: ")
-
-                if res not in valid_responses:
-                    print("failed! Please input a valid response (0,1,2)")
-                # TODO: this is repeat of code above; refactor
-                else:
-                    if res == "1":
-                        concepts += 1
-                        print("labeled as concept")        
-                    elif res == "0" or res == "":
-                        not_concepts += 1
-                        print("labeled as not a concept")
-
-                    # TODO: refactor this
-                    elif res == "2":
-                        unsures += 1
-                        print("labeled as unsure")
+                # TODO: refactor this
+                elif res == "2":
+                    unsures += 1
+                    print("labeled as unsure")
                 
         processed_blocks.append((block, res))
         i += 1

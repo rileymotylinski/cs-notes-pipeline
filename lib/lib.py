@@ -25,7 +25,7 @@ def is_candidate_concept(block) -> bool:
     '''
 
     # not enough words/letters
-    if len(block.text.split()) > 5 or len(block.text) < 3:
+    if len(block.text.split()) >= 5 or len(block.text) < 3:
         return False
     
     # bullet points
@@ -37,5 +37,9 @@ def is_candidate_concept(block) -> bool:
     
     return None # in need of classification
 
+articles = ("the", "this", "*", "a", "an", "or", "some")
 def remove_articles(s: str):
-    return s.replace("the", "").replace("this", "").replace("*", "").strip()
+
+    for a in articles:
+        s.replace(a, "")
+    return s
