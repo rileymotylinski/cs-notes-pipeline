@@ -27,7 +27,7 @@ class Block():
 # a single file of notes is a document, or a collection of blocks
 class Document:
     def __init__(self, blocks: list[Block],course_code: str, semester: str):
-        
+        self.nlp = en_core_web_sm.load()
         self.blocks = []
         for block in blocks:
             # if it's some sort of heading, we assume it doesn't need to be split
@@ -41,7 +41,6 @@ class Document:
         self.course_code = course_code
         self.semester = semester
         
-    
     def add_block(self, b: Block):
         self.blocks.append(b)
     
@@ -49,11 +48,11 @@ class Document:
         """
         purpose: chunks all the text/blocks of the document into possible concepts; normalize such that they are as uniform as possible
         """
-        nlp = en_core_web_sm.load()
+        
         for block in self.blocks:
             res = []
                 
-            process_doc = nlp(block.text)
+            process_doc = self.nlp(block.text)
 
             for chunk in process_doc.noun_chunks:
                 res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text.lower())))

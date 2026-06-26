@@ -74,7 +74,7 @@ def handle_directory_input(directory, course_code, semester) -> list[Document]:
             continue
         
         res.append(processed)
-        print(f"processed file: {file}")
+        print(f"parsed file: {file}")
 
     
     return res

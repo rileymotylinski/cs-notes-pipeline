@@ -37,8 +37,13 @@ def is_candidate_concept(block) -> bool:
     
     return None # in need of classification
 
-articles = ("the", "this", "*", "a", "an", "or", "some")
+# have to have spaces so they actually don't remove *every* character
+# only problem would be if a concept ends in an article, which I don't 
+# really see as possible, but may be something to consider
+articles = ("the ", "this", "*", "a ", "an", "or", "some")
 def remove_articles(s: str):
+    s = s.strip()
     for a in articles:
-        s.replace(a, "")
-    return s
+        s = s.removeprefix(a)
+
+    return s.strip()
