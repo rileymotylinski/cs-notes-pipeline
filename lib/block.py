@@ -27,32 +27,39 @@ class Block():
 # a single file of notes is a document, or a collection of blocks
 class Document:
     def __init__(self, blocks: list[Block],course_code: str, semester: str):
-        nlp = en_core_web_sm.load()
+        
         self.blocks = []
         for block in blocks:
             # if it's some sort of heading, we assume it doesn't need to be split
             # this is the second pass of split blocks
             # TODO: I think this is the best way to do it? Constructing it in the parser would require having two sources of truth which I don't like
             if block.block_type.value <= ContentType.SUBSUBHEADING.value and block.block_type.value  >= ContentType.HEADING.value:
-                block.text = remove_articles(block.text.lower())
+                block.text = block.text.lower()
                 self.blocks.append(block)
                 continue
 
-            res = []
-            
-            process_doc = nlp(block.text)
-            
-            for chunk in process_doc.noun_chunks:
-                res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text).lower()))
-            
-            self.blocks += res
-  
         self.course_code = course_code
         self.semester = semester
         
     
     def add_block(self, b: Block):
         self.blocks.append(b)
+    
+    def as_concepts(self):
+        """
+        purpose: chunks all the text/blocks of the document into possible concepts; normalize such that they are as uniform as possible
+        """
+        nlp = en_core_web_sm.load()
+        for block in self.blocks:
+            res = []
+                
+            process_doc = nlp(block.text)
+
+            for chunk in process_doc.noun_chunks:
+                res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text.lower())))
+            
+        return res
+
 
     def as_json(self):
         """

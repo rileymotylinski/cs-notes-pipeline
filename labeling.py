@@ -31,11 +31,11 @@ if __name__ == "__main__":
         print(f"unable to read directory: {dir}")
         sys.exit()
 
-    blocks = []
+    possible_concepts = []
     # flattening out chunked nouns
     print("chunking nouns...")
     for doc in processed_docs:
-        blocks += doc.blocks
+        possible_concepts += doc.as_concepts()
     print("finished!")
 
     print("""you will now begin labeling blocks:
@@ -51,10 +51,10 @@ if __name__ == "__main__":
     processed_blocks = []
 
     # only label 500 concepts
-    while i < len(blocks) and i < 500:
+    while i < len(possible_concepts) and i < 500:
         print()
         print(i)
-        block = blocks[i]
+        block = possible_concepts[i]
         res = encode_bool(is_candidate_concept(block))
         print(block.text)
         if block.text in seen_concepts or res != 2:

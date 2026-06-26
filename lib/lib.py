@@ -39,7 +39,6 @@ def is_candidate_concept(block) -> bool:
 
 articles = ("the", "this", "*", "a", "an", "or", "some")
 def remove_articles(s: str):
-
     for a in articles:
         s.replace(a, "")
     return s
