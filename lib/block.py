@@ -28,15 +28,7 @@ class Block():
 class Document:
     def __init__(self, blocks: list[Block],course_code: str, semester: str):
         self.nlp = en_core_web_sm.load()
-        self.blocks = []
-        for block in blocks:
-            # if it's some sort of heading, we assume it doesn't need to be split
-            # this is the second pass of split blocks
-            # TODO: I think this is the best way to do it? Constructing it in the parser would require having two sources of truth which I don't like
-            if block.block_type.value <= ContentType.SUBSUBHEADING.value and block.block_type.value  >= ContentType.HEADING.value:
-                block.text = block.text.lower()
-                self.blocks.append(block)
-                continue
+        self.blocks = blocks
 
         self.course_code = course_code
         self.semester = semester

@@ -20,12 +20,14 @@ def parse_file(filename, file_extension, course_code, semester) -> Document:
     doc = None
 
     if file_extension == "md":
+    
         parser = MarkdownParser()
         with open(filename, "r") as f:
 
             lines = [line.strip(" ").strip("\n") for line in f.readlines()]
+        
             res = parser.parse(lines)
-
+            
             doc = Document(res, course_code, semester)
 
             f.close()
