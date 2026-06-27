@@ -44,20 +44,19 @@ class Document:
     def add_block(self, b: Block):
         self.blocks.append(b)
     
-    def as_concepts(self):
+    def as_concepts(self) -> list[Block]:
         """
         purpose: chunks all the text/blocks of the document into possible concepts; normalize such that they are as uniform as possible
         """
-        
+        res = []
         for block in self.blocks:
-            res = []
                 
             process_doc = self.nlp(block.text)
 
             for chunk in process_doc.noun_chunks:
                 res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text.lower())))
-            
-        return res
+        
+        return res  
 
 
     def as_json(self):

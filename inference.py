@@ -31,7 +31,7 @@ if __name__ == "__main__":
     if not parsed_document:
         print(f"unable to parse document: {filename}")
         sys.exit()
-
+    print(len(parsed_document.blocks))
     for chunk in parsed_document.blocks:
       
         match is_candidate_concept(chunk):
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     text_blocks = [c.text for c in parsed_document.blocks]
     X = embedder.encode(text_blocks)
     preds = clf.predict(X)
-    classified = [c for c, p in zip(text_blocks, preds) if p == 2]
+    classified = [c for c, p in zip(text_blocks, preds)]
 
 
     print(classified)

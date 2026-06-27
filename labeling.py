@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     # TODO: accept course_code and semester as arguments
     processed_docs = ingest(directory=dir, course_code="csci2021", semester="2")
-    
+    print(f"total processed documents: {len(processed_docs)}")
+
     if not processed_docs:
         print(f"unable to read directory: {dir}")
         sys.exit()
@@ -49,7 +50,7 @@ if __name__ == "__main__":
     i, concepts, not_concepts, unsures = 0,0,0,0
 
     processed_blocks = []
-
+    print(f"to classify: {len(possible_concepts)}")
     # only label 500 concepts
     while i < len(possible_concepts) and i < 500:
         print()
@@ -62,8 +63,6 @@ if __name__ == "__main__":
             print("skipped as repeat or unambiguious concept")
             i += 1
             continue
-        else:
-            seen_concepts.add(block.text)
     
         while res not in valid_responses:
             res = input("rate this block: ")
@@ -85,6 +84,7 @@ if __name__ == "__main__":
                     print("labeled as unsure")
                 
         processed_blocks.append((block, res))
+        seen_concepts.add(block.text)
         i += 1
 
         print()
