@@ -40,10 +40,16 @@ if __name__ == "__main__":
             case 2:
                 possible_concepts.append(chunk.text)
 
-    text_blocks = [c.text for c in parsed_document.blocks]
+    text_blocks = [b.text for b in parsed_document.as_concepts()]
+    print(text_blocks)
+    
     X = embedder.encode(text_blocks)
+
     preds = clf.predict(X)
-    classified = [c for c, p in zip(text_blocks, preds) if p == 1]
+    classified = [(c,p) for c, p in zip(text_blocks, preds)]
+    
+    for row in classified:
+        if row[1] == "1":
+            print(row[0]) 
 
-
-    print(classified)
+    
