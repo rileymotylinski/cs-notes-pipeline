@@ -1,10 +1,10 @@
-import { GraphView } from "./components/GraphView";
+import { SimpleGraph } from "./components/GraphView";
 
 
 export default function Home() {
   return (
     <div>
-      <GraphView></GraphView>
+      <SimpleGraph></SimpleGraph>
     </div>
   );
 }
