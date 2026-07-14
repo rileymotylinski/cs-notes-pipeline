@@ -9,7 +9,6 @@ const GraphCanvas = dynamic(
 );
 
 
- 
 export const SimpleGraph: FC = () => {
   return (
     <div className='h-[300px] bg-black w-full relative'>

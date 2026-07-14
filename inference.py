@@ -48,8 +48,10 @@ if __name__ == "__main__":
     preds = clf.predict(X)
     classified = [(c,p) for c, p in zip(text_blocks, preds)]
     
-    for row in classified:
-        if row[1] == "1":
-            print(row[0]) 
+    with open("out.txt", "w") as f:
+        for row in classified:
+            if row[1] == "1":
+                f.write(f"{row[0]}\n")
+    print("wrote concepts to out.txt in project directory")
 
     
