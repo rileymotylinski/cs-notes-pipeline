@@ -5,6 +5,9 @@ import argparse
 from lib.ingestion import ingest
 import sys
 from lib.lib import is_candidate_concept
+import json
+import os
+from dotenv import load_dotenv, dotenv_values 
 
 
 
@@ -47,11 +50,12 @@ if __name__ == "__main__":
 
     preds = clf.predict(X)
     classified = [(c,p) for c, p in zip(text_blocks, preds)]
-    
-    with open("out.txt", "w") as f:
-        for row in classified:
-            if row[1] == "1":
-                f.write(f"{row[0]}\n")
-    print("wrote concepts to out.txt in project directory")
+    classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
+
+    load_dotenv() 
+    with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
+        json.dump(classified,f)
+        
+    print(f"wrote concepts to {os.getenv("CONCEPTS_DUMP")} in project directory")
 
     

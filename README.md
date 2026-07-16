@@ -14,6 +14,7 @@ nlp pipeline for processing & visualizing my computer science notes.
 5) run labeling.py to label data for training
 6) run classifier.py to train the model
 7) run inference.py to extract concepts from a new file
+8) set path to output txt file in `.env` (e.g. `CONCEPTS_TXT_FILE=path_to_file`)
 ```
 ### Labeling.py
 Expedites concept labeling/encoding from `/lib/test_notes/`. Any file placed in that directory will flow throw ingestion pipeline; some will be processed, others won't depending on what files are in the directory
