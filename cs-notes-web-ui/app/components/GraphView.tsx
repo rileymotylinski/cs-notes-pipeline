@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { FC } from 'react';
 import { darkTheme } from 'reagraph';
-import { test_file } from './get_concepts';
+import concepts from "../../public/data.json"
 
 const GraphCanvas = dynamic(
   () => import('reagraph').then((mod) => mod.GraphCanvas),
@@ -13,10 +13,9 @@ const GraphCanvas = dynamic(
 
 
 export const SimpleGraph: FC = () => {
-
+  console.log(concepts.concepts)
   return (
   <div>
-    <button onClick={() => test_file()} className='w-10 bg-amber-200'>Populate</button>
     <div className='h-[300px] bg-black w-full relative'>
       
       <GraphCanvas
