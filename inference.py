@@ -51,6 +51,7 @@ if __name__ == "__main__":
     preds = clf.predict(X)
     classified = [(c,p) for c, p in zip(text_blocks, preds)]
     classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
+    classified = { "concepts" : classified}
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
