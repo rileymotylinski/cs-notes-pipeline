@@ -13,7 +13,8 @@ const GraphCanvas = dynamic(
 
 
 export const SimpleGraph: FC = () => {
-  console.log(concepts.concepts)
+
+
   return (
   <div>
     <div className='h-[300px] bg-black w-full relative'>
@@ -21,16 +22,7 @@ export const SimpleGraph: FC = () => {
       <GraphCanvas
         labelType='all'
         theme={darkTheme}
-        nodes={[
-          {
-            id: 'n-1',
-            label: '1',
-          },
-          {
-            id: 'n-2',
-            label: '2',
-          },
-        ]}
+        nodes={concepts.classified}
         edges={[
           {
             id: '1->2',

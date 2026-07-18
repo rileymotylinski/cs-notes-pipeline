@@ -51,11 +51,15 @@ if __name__ == "__main__":
     preds = clf.predict(X)
     classified = [(c,p) for c, p in zip(text_blocks, preds)]
     classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
-    classified = { "concepts" : classified}
+    
+    nodes = []
+
+    for i in range(len(classified)):
+        nodes.append({"id" : f"n{i}", "label": classified[i]}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
-        json.dump(classified,f)
+        json.dump({"classified": nodes},f)
         
     print(f"wrote concepts to {os.getenv("CONCEPTS_DUMP")} in project directory")
 
