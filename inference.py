@@ -2,12 +2,34 @@ import joblib
 from sentence_transformers import SentenceTransformer
 import spacy
 import argparse
+from lib.block import Block
 from lib.ingestion import ingest
 import sys
 from lib.lib import is_candidate_concept
 import json
 import os
 from dotenv import load_dotenv, dotenv_values 
+
+def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
+    """
+    purpose: custom wrapper for pytorch embedding + prediction funciton. 
+    Handles custom blocks instead of raw text. Important 
+    for retaining metadata from blocks
+    """
+
+    text_blocks = [b.text for b in blocks]
+    X = embedder.encode(text_blocks)
+
+    preds = clf.predict(X)
+    classified = [(c,p) for c, p in zip(text_blocks, preds)]
+    # only return text classified as concepts
+    classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
+
+    res = []
+    for b in blocks:
+        if b.text in classified:
+            res.append(b)
+    return res
 
 
 
@@ -34,20 +56,11 @@ if __name__ == "__main__":
         print(f"unable to parse document: {filename}")
         sys.exit()
     
-
-    text_blocks = [b.text for b in parsed_document.as_concepts()]
-    print(text_blocks)
-    
-    X = embedder.encode(text_blocks)
-
-    preds = clf.predict(X)
-    classified = [(c,p) for c, p in zip(text_blocks, preds)]
-    classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
-    
+    classified = _encode__classify_blocks(parsed_document.as_concepts())
     nodes = []
 
     for i in range(len(classified)):
-        nodes.append({"id" : f"n{i}", "label": classified[i]}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+        nodes.append({"id" : f"n{i}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
