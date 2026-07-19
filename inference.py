@@ -28,20 +28,12 @@ if __name__ == "__main__":
     filename = args.filename
 
     concepts = []
-    possible_concepts = []
     parsed_document = ingest(filename=filename)
 
     if not parsed_document:
         print(f"unable to parse document: {filename}")
         sys.exit()
     
-    for chunk in parsed_document.as_concepts():
-      
-        match is_candidate_concept(chunk):
-            case 1:
-                concepts.append(chunk.text)
-            case 2:
-                possible_concepts.append(chunk.text)
 
     text_blocks = [b.text for b in parsed_document.as_concepts()]
     print(text_blocks)
