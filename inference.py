@@ -31,6 +31,15 @@ def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
             res.append(b)
     return res
 
+def _find_links(blocks: list[Block]) -> dict:
+    links = {}
+    for b in blocks:
+        if b.header_context not in links:
+            links[b.header_context] = []
+        links[b.header_context].append(b)
+
+    return links
+
 
 
 if __name__ == "__main__":
@@ -57,14 +66,37 @@ if __name__ == "__main__":
         sys.exit()
     
     classified = _encode__classify_blocks(parsed_document.as_concepts())
+    found_links = _find_links(classified)
+
     nodes = []
+    links = []
 
     for i in range(len(classified)):
-        nodes.append({"id" : f"n{i}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+        nodes.append({"id" : f"{classified[i].id}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+
+    links_created = 0
+    for link in found_links:
+        for i in range(len(found_links[link])):
+            for j in range(i + 1, len(found_links[link])):
+                links.append(
+                    {
+                        "id" : str(links_created),
+                        # src
+                        "source" : found_links[link][i].id,
+                        # trgt
+                        "target" : found_links[link][j].id,
+                        # label. TODO : leaving empty for now to avoid visual clutter
+                        "label" : "testing"
+                    }
+                )
+                links_created += 1
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
-        json.dump({"classified": nodes},f)
+        json.dump({
+            "nodes": nodes,
+            "links" : links
+        },f)
         
     print(f"wrote concepts to {os.getenv("CONCEPTS_DUMP")} in project directory")
 
