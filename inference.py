@@ -36,6 +36,8 @@ def _find_links(blocks: list[Block]) -> dict:
     for b in blocks:
         if b.header_context not in links:
             links[b.header_context] = []
+        
+   
         links[b.header_context].append(b)
 
     return links
@@ -74,22 +76,26 @@ if __name__ == "__main__":
     for i in range(len(classified)):
         nodes.append({"id" : f"{classified[i].id}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
+    
     links_created = 0
+
     for link in found_links:
+        cur_header_node = {"id" : f"{links_created}", "label": link}
+        nodes.append(cur_header_node)
+
         for i in range(len(found_links[link])):
-            for j in range(i + 1, len(found_links[link])):
-                links.append(
-                    {
-                        "id" : str(links_created),
-                        # src
-                        "source" : found_links[link][i].id,
-                        # trgt
-                        "target" : found_links[link][j].id,
-                        # label. TODO : leaving empty for now to avoid visual clutter
-                        "label" : "testing"
-                    }
-                )
-                links_created += 1
+            links.append(
+                {
+                    "id" : str(links_created),
+                    # src
+                    "source" : found_links[link][i].id,
+                    # trgt
+                    "target" : cur_header_node["id"],
+                    # label. TODO : leaving empty for now to avoid visual clutter
+                    "label" : "testing"
+                }
+            )
+            links_created += 1
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
