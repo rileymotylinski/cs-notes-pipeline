@@ -1,14 +1,17 @@
-import joblib
 from sentence_transformers import SentenceTransformer
-import spacy
-import argparse
-from lib.block import Block
 from lib.ingestion import ingest
-import sys
-from lib.lib import is_candidate_concept
+from dotenv import load_dotenv
+from lib.block import Block
+import itertools
+import argparse
+import joblib
+import spacy
 import json
+import sys
 import os
-from dotenv import load_dotenv, dotenv_values 
+
+
+
 
 def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
     """
@@ -30,6 +33,21 @@ def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
         if b.text in classified:
             res.append(b)
     return res
+
+def magnitude(v: list[int]):
+    res = 0
+
+    for n in v:
+        res += n * n   
+    return res ** 0.5
+
+def dot_product(b1: Block, b2: Block):
+    i = min(len(b1), len(b2))
+    total = 0
+    for j in range(i):
+        total += b1[j] * b2[j]
+
+    return total / (magnitude(b1) * magnitude(b2))
 
 def _find_links(blocks: list[Block]) -> dict:
     links = {}
@@ -96,6 +114,26 @@ if __name__ == "__main__":
                 }
             )
             links_created += 1
+
+    # TODO : somehow refactor this so it doesn't call encode again (or th eother function doesn't)
+    possible_edges = itertools.combinations(classified,2)
+
+    for edge in possible_edges:
+        if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.1:
+            links.append(
+                {
+                    "id" : str(links_created),
+                    # src
+                    "source" : edge[0].id,
+                    # trgt
+                    "target" : edge[1].id,
+                    # label. TODO : leaving empty for now to avoid visual clutter
+                    "label" : "testing"
+                }
+            )
+            links_created += 1
+
+
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:

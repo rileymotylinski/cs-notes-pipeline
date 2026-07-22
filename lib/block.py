@@ -1,5 +1,7 @@
 import json
 import en_core_web_sm
+from sentence_transformers import SentenceTransformer
+
 
 from lib.lib import ContentType, remove_articles
 
@@ -22,6 +24,7 @@ class Block():
             "header_context": self.header_context,
             "text": self.text
         }
+
 
 
 # a single file of notes is a document, or a collection of blocks
@@ -74,6 +77,8 @@ class Document:
         for b in self.blocks:
             text += f"{b.text} "
         return text
+
+    
     
 
         
