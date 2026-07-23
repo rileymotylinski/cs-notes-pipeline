@@ -73,19 +73,23 @@ if __name__ == "__main__":
     )
     # positional argument (1) for file
     
-    parser.add_argument("-f", "--filename") 
+    parser.add_argument("-d", "--directory") 
 
     args = parser.parse_args()
-    filename = args.filename
+    directory = args.directory
 
     concepts = []
-    parsed_document = ingest(filename=filename)
+    parsed_directory = ingest(directory=directory)
 
-    if not parsed_document:
-        print(f"unable to parse document: {filename}")
-        sys.exit()
-    
-    classified = _encode__classify_blocks(parsed_document.as_concepts())
+    classified = []
+
+    for doc in parsed_directory:
+        if not doc:
+            print(f"unable to parse document!")
+            sys.exit()
+        
+        classified += _encode__classify_blocks(doc.as_concepts())
+
     found_links = _find_links(classified)
 
     nodes = []
@@ -98,6 +102,7 @@ if __name__ == "__main__":
     possible_edges = set(itertools.combinations(classified,2))
 
     for link in found_links:
+        
         cur_header_node = {"id" : f"{links_created}", "label": link}
         nodes.append(cur_header_node)
 
@@ -113,9 +118,12 @@ if __name__ == "__main__":
             )
             links_created += 1
 
-    
 
+    # insane computation load; need a smart way to approach this
+    # something w/ header nodes, finding links there , then grouping children
+    """
     for edge in possible_edges:
+
         if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.01: # arbitrary gate right now; affects the total number of links
             candidate_edge = {
                                 "id" : str(links_created),
@@ -128,7 +136,7 @@ if __name__ == "__main__":
                 links.append(candidate_edge)
                 links_created += 1
 
-
+    """
 
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
