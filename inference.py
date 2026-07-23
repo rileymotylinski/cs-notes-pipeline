@@ -94,8 +94,8 @@ if __name__ == "__main__":
     for i in range(len(classified)):
         nodes.append({"id" : f"{classified[i].id}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
-    
     links_created = 0
+    possible_edges = set(itertools.combinations(classified,2))
 
     for link in found_links:
         cur_header_node = {"id" : f"{links_created}", "label": link}
@@ -109,27 +109,24 @@ if __name__ == "__main__":
                     "source" : found_links[link][i].id,
                     # trgt
                     "target" : cur_header_node["id"],
-                    # label. TODO : leaving empty for now to avoid visual clutter
                 }
             )
             links_created += 1
 
-    possible_edges = itertools.combinations(classified,2)
+    
 
     for edge in possible_edges:
         if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.01: # arbitrary gate right now; affects the total number of links
-            links.append(
-                {
-                    "id" : str(links_created),
-                    # src
-                    "source" : edge[0].id,
-                    # trgt
-                    "target" : edge[1].id,
-                    # label. TODO : leaving empty for now to avoid visual clutter
-                    
-                }
-            )
-            links_created += 1
+            candidate_edge = {
+                                "id" : str(links_created),
+                                # src
+                                "source" : edge[0].id,
+                                # trgt
+                                "target" : edge[1].id,
+                            }
+            if candidate_edge not in links:
+                links.append(candidate_edge)
+                links_created += 1
 
 
 
