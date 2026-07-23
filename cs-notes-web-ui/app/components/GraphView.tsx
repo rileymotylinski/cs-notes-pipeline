@@ -17,7 +17,7 @@ export const SimpleGraph: FC = () => {
 
   return (
     <div>
-      <div className='h-[300px] bg-black w-full relative'>
+      <div className='h-screen bg-black w-full relative'>
         
         <GraphCanvas
           labelType='all'

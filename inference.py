@@ -110,16 +110,14 @@ if __name__ == "__main__":
                     # trgt
                     "target" : cur_header_node["id"],
                     # label. TODO : leaving empty for now to avoid visual clutter
-                    "label" : "testing"
                 }
             )
             links_created += 1
 
-    # TODO : somehow refactor this so it doesn't call encode again (or th eother function doesn't)
     possible_edges = itertools.combinations(classified,2)
 
     for edge in possible_edges:
-        if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.1:
+        if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.01: # arbitrary gate right now; affects the total number of links
             links.append(
                 {
                     "id" : str(links_created),
@@ -128,7 +126,7 @@ if __name__ == "__main__":
                     # trgt
                     "target" : edge[1].id,
                     # label. TODO : leaving empty for now to avoid visual clutter
-                    "label" : "testing"
+                    
                 }
             )
             links_created += 1
