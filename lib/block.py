@@ -6,8 +6,7 @@ from sentence_transformers import SentenceTransformer
 from lib.lib import ContentType, remove_articles
 
 class Block():
-    def __init__(self,id: str, block_type:ContentType, header_context: str="", text: str=""):
-        self.id = id
+    def __init__(self, block_type:ContentType, header_context: str="", text: str=""):
         self.block_type = block_type
         self.header_context = header_context
         self.text = text
@@ -19,7 +18,6 @@ class Block():
         returns: json-fied version of a block
         """
         return {
-            "id": self.id,
             "block_type": self.block_type.name,
             "header_context": self.header_context,
             "text": self.text
@@ -49,7 +47,7 @@ class Document:
             process_doc = self.nlp(block.text)
 
             for chunk in process_doc.noun_chunks:
-                res.append(Block(block.id,block.block_type, block.header_context, remove_articles(chunk.text.lower())))
+                res.append(Block(block.block_type, block.header_context, remove_articles(chunk.text.lower())))
         
         return res  
 

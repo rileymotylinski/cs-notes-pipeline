@@ -73,52 +73,62 @@ if __name__ == "__main__":
     )
     # positional argument (1) for file
     
-    parser.add_argument("-d", "--directory") 
+    parser.add_argument("-d", "--directory")
+    parser.add_argument("-m", "--max")  
 
     args = parser.parse_args()
     directory = args.directory
+    max_files = args.max
+    if max_files != None:
+        max_files = int(max_files)
+    else: 
+        max_files = -1
 
     concepts = []
-    parsed_directory = ingest(directory=directory)
+    parsed_directory = ingest(directory=directory, max_files=max_files)
 
     classified = []
+    i = 0
 
-    for doc in parsed_directory:
-        if not doc:
+    while (max_files == -1 or i < max_files) and i < len(parsed_directory):
+     
+        if not parsed_directory[i]:
             print(f"unable to parse document!")
             sys.exit()
         
-        classified += _encode__classify_blocks(doc.as_concepts())
-
+        classified += _encode__classify_blocks(parsed_directory[i].as_concepts())
+        i += 1
     found_links = _find_links(classified)
-
+    print(len(classified))
     nodes = []
     links = []
 
     for i in range(len(classified)):
-        nodes.append({"id" : f"{classified[i].id}", "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+        nodes.append({"id" : classified[i].text, "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
+    
     possible_edges = set(itertools.combinations(classified,2))
 
     for link in found_links:
-        
-        cur_header_node = {"id" : f"{links_created}", "label": link}
-        nodes.append(cur_header_node)
 
+        cur_header_node = {"id" : f"{link}", "label": link}
+        nodes.append(cur_header_node)
+    
+        found_ids = set()
         for i in range(len(found_links[link])):
+
             links.append(
                 {
                     "id" : str(links_created),
-                    # src
-                    "source" : found_links[link][i].id,
-                    # trgt
+                    "source" : found_links[link][i].text,
                     "target" : cur_header_node["id"],
                 }
+                
             )
             links_created += 1
 
-
+    
     # insane computation load; need a smart way to approach this
     # something w/ header nodes, finding links there , then grouping children
     """

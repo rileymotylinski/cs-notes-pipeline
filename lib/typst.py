@@ -1,6 +1,7 @@
 from lib.lib import ContentType
 from lib.block import Block
 import re
+import uuid
 
 
 def ident_to_content_type(ident: str):
@@ -54,7 +55,7 @@ class TypstParser():
                 text = lines[i][0:]
 
             # notes (probably) wont have > 9999 lines
-            current_block: Block = Block(f"{i:04}",block_type,header_context=self.current_header,text=text)
+            current_block: Block = Block(block_type,header_context=self.current_header,text=text)
 
             res.append(current_block)
         

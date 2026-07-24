@@ -1,6 +1,7 @@
 from lib.lib import ContentType
 from lib.block import Block
 import re
+import uuid
 
 
 def ident_to_content_type(ident: str):
@@ -49,7 +50,7 @@ class MarkdownParser():
 
             # notes (probably) wont have > 9999 lines
             # This is the *first* pass where we are simply splitting by line into seperate chunks
-            current_block: Block = Block(f"{i:04}",block_type,header_context=self.current_header,text=text)
+            current_block: Block = Block(block_type,header_context=self.current_header,text=text)
 
             res.append(current_block)
         

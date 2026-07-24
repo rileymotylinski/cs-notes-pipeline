@@ -66,23 +66,28 @@ def handle_file_input(filename, course_code, semester) -> Document:
     
     return doc
 
-def handle_directory_input(directory, course_code, semester) -> list[Document]:
+def handle_directory_input(directory, course_code, semester, max_files=-1) -> list[Document]:
     directory = directory.strip("/")
+    files = os.listdir(directory)
     res = []
-    for file in os.listdir(directory):
-        processed = handle_file_input(f"{directory}/{file}", course_code, semester)
+    i = 0
+   
+    while i < len(files) and (max_files == -1 or i < max_files):
+        processed = handle_file_input(f"{directory}/{files[i]}", course_code, semester)
 
         if not processed:
+            i += 1
             continue
         
         res.append(processed)
-        print(f"parsed file: {file}")
+        print(f"parsed file: {files[i]}")
+        i += 1
 
-    
+   
     return res
 
 
-def ingest(filename=None, directory=None, course_code="", semester="") -> (Document | list[Document] | None):
+def ingest(filename=None, directory=None, course_code="", semester="", max_files=-1) -> (Document | list[Document] | None):
     """
     receives either a file or directory and spits out a processed document object
     """
@@ -95,7 +100,7 @@ def ingest(filename=None, directory=None, course_code="", semester="") -> (Docum
         res = handle_file_input(filename, course_code, semester)
     
     elif directory != None:
-        res = handle_directory_input(directory, course_code, semester)
+        res = handle_directory_input(directory, course_code, semester, max_files)
 
     return res
 
