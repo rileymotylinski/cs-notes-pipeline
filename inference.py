@@ -90,6 +90,7 @@ if __name__ == "__main__":
     classified = []
     i = 0
 
+    # parse out files
     while (max_files == -1 or i < max_files) and i < len(parsed_directory):
      
         if not parsed_directory[i]:
@@ -98,18 +99,22 @@ if __name__ == "__main__":
         
         classified += _encode__classify_blocks(parsed_directory[i].as_concepts())
         i += 1
+
+    # group concepts by heading
     found_links = _find_links(classified)
-    print(len(classified))
+
     nodes = []
     links = []
 
+    # create nodes for each concept
     for i in range(len(classified)):
         nodes.append({"id" : classified[i].text, "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
     
-    possible_edges = set(itertools.combinations(classified,2))
+    possible_edges = list(itertools.combinations(classified,2))
 
+    # link all nodes to their respective header nodes
     for link in found_links:
 
         cur_header_node = {"id" : f"{link}", "label": link}
@@ -123,6 +128,7 @@ if __name__ == "__main__":
                     "id" : str(links_created),
                     "source" : found_links[link][i].text,
                     "target" : cur_header_node["id"],
+                    "label" : "",
                 }
                 
             )
@@ -131,23 +137,23 @@ if __name__ == "__main__":
     
     # insane computation load; need a smart way to approach this
     # something w/ header nodes, finding links there , then grouping children
-    """
-    for edge in possible_edges:
 
-        if dot_product(embedder.encode(edge[0].text), embedder.encode(edge[1].text)) < 0.01: # arbitrary gate right now; affects the total number of links
+    for i in range(len(possible_edges)):
+
+        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9: # arbitrary gate right now; affects the total number of links
             candidate_edge = {
                                 "id" : str(links_created),
                                 # src
-                                "source" : edge[0].id,
+                                "source" : possible_edges[i][0].text,
                                 # trgt
-                                "target" : edge[1].id,
+                                "target" : possible_edges[i][1].text,
+                                "label" : "",
                             }
             if candidate_edge not in links:
                 links.append(candidate_edge)
                 links_created += 1
-
-    """
-
+        print(f"processed {i} / {len(possible_edges)}")
+    # write to file
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
         json.dump({
