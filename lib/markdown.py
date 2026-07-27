@@ -27,6 +27,7 @@ class MarkdownParser():
     
     def parse(self, lines) -> list[Block]:
         res = []
+        num_headers = 0
         for i in range(len(lines)):
             # empty line
             if len(lines[i]) <= 1:
@@ -43,6 +44,7 @@ class MarkdownParser():
             # update current_header
             # TODO: suggest depth by storing ALL parent headings
             if block_type.value >= ContentType.HEADING.value and block_type.value <= ContentType.SUBSUBHEADING.value:
+                num_headers += 1
                 self.current_header = text
             elif block_type == ContentType.TEXT:
                 # text will have no leading character
@@ -50,7 +52,7 @@ class MarkdownParser():
 
             # notes (probably) wont have > 9999 lines
             # This is the *first* pass where we are simply splitting by line into seperate chunks
-            current_block: Block = Block(block_type,header_context=self.current_header,text=text)
+            current_block: Block = Block(block_type,position=num_headers,header_context=self.current_header,text=text)
 
             res.append(current_block)
         
