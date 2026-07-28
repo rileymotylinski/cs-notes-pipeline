@@ -9,7 +9,7 @@ class Block():
     def __init__(self, block_type:ContentType, position: int=0, header_context: str="", text: str=""):
         self.block_type = block_type
         self.header_context = header_context
-        self.text = text
+        self.text = text.lower()
         self.position = 0 # what numbered header the block is under
     
     def as_json(self):

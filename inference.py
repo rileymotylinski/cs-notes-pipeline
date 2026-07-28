@@ -6,6 +6,7 @@ import itertools
 import argparse
 import joblib
 import spacy
+import math
 import json
 import sys
 import os
@@ -137,9 +138,10 @@ if __name__ == "__main__":
     
     # insane computation load; need a smart way to approach this
     # something w/ header nodes, finding links there , then grouping children
-
+    prev_rounded = 0
     for i in range(len(possible_edges)):
-
+        percent = i / len(possible_edges)
+        rounded = round(percent, 3)
         if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9: # arbitrary gate right now; affects the total number of links
             candidate_edge = {
                                 "id" : str(links_created),
@@ -152,7 +154,11 @@ if __name__ == "__main__":
             if candidate_edge not in links:
                 links.append(candidate_edge)
                 links_created += 1
-        print(f"processed {i} / {len(possible_edges)}")
+
+        
+        if abs(rounded - prev_rounded) > 0.01:
+            print(f"{int(rounded * 100)}%")
+            prev_rounded = rounded
     # write to file
     load_dotenv() 
     with open(os.getenv("CONCEPTS_DUMP"), "w") as f:
