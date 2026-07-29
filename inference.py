@@ -42,6 +42,8 @@ def magnitude(v: list[int]):
         res += n * n   
     return res ** 0.5
 
+
+
 def dot_product(b1: Block, b2: Block):
     i = min(len(b1), len(b2))
     total = 0
@@ -91,7 +93,7 @@ if __name__ == "__main__":
     classified = []
     i = 0
 
-    # parse out files
+    # parse out files + flatten every concept into a single list
     while (max_files == -1 or i < max_files) and i < len(parsed_directory):
      
         if not parsed_directory[i]:
@@ -121,7 +123,6 @@ if __name__ == "__main__":
         cur_header_node = {"id" : f"{link}", "label": link}
         nodes.append(cur_header_node)
     
-        found_ids = set()
         for i in range(len(found_links[link])):
 
             links.append(
@@ -142,13 +143,16 @@ if __name__ == "__main__":
     for i in range(len(possible_edges)):
         percent = i / len(possible_edges)
         rounded = round(percent, 3)
-        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9: # arbitrary gate right now; affects the total number of links
+        start = possible_edges[i][0].text
+        end = possible_edges[i][1].text
+
+        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9 and start != end: # arbitrary gate right now; affects the total number of links
             candidate_edge = {
                                 "id" : str(links_created),
                                 # src
-                                "source" : possible_edges[i][0].text,
+                                "source" : start,
                                 # trgt
-                                "target" : possible_edges[i][1].text,
+                                "target" : end,
                                 "label" : "",
                             }
             if candidate_edge not in links:
