@@ -6,12 +6,16 @@ import itertools
 import argparse
 import joblib
 import spacy
-import math
+from docarray import BaseDoc
+from docarray.typing import NdArray
 import json
 import sys
 import os
 
 
+class ConceptDoc(BaseDoc):
+    text: str = ''
+    embedding: NdArray[128]
 
 
 def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
