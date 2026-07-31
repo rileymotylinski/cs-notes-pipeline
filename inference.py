@@ -6,19 +6,23 @@ import itertools
 import argparse
 import joblib
 import spacy
-from docarray import BaseDoc
+from docarray import BaseDoc, DocList
 from docarray.typing import NdArray
+import numpy as np
+from vectordb import InMemoryExactNNVectorDB
 import json
 import sys
 import os
 
 
 class ConceptDoc(BaseDoc):
-    text: str = ''
+    block: Block = None
     embedding: NdArray[128]
 
 
-def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
+
+
+def _encode__classify_blocks(blocks: list[Block]) -> list[ConceptDoc]:
     """
     purpose: custom wrapper for pytorch embedding + prediction funciton. 
     Handles custom blocks instead of raw text. Important 
@@ -34,9 +38,9 @@ def _encode__classify_blocks(blocks: list[Block]) -> list[Block]:
     classified = [c[0] for c in list(filter(lambda c : c[1] == "1", classified))]
 
     res = []
-    for b in blocks:
-        if b.text in classified:
-            res.append(b)
+    for i in range(len(blocks)):
+        if blocks[i].text in classified:
+            res.append(ConceptDoc(blocks[i], X[i]))
     return res
 
 def magnitude(v: list[int]):
@@ -94,7 +98,7 @@ if __name__ == "__main__":
     concepts = []
     parsed_directory = ingest(directory=directory, max_files=max_files)
 
-    classified = []
+    classified: list[ConceptDoc] = []
     i = 0
 
     # parse out files + flatten every concept into a single list
@@ -106,7 +110,8 @@ if __name__ == "__main__":
         
         classified += _encode__classify_blocks(parsed_directory[i].as_concepts())
         i += 1
-
+    db = InMemoryExactNNVectorDB[ConceptDoc](workspace='./workspace_path')
+    db.index(docs=DocList(docs=[classified]))
     # group concepts by heading
     found_links = _find_links(classified)
 
@@ -115,7 +120,7 @@ if __name__ == "__main__":
 
     # create nodes for each concept
     for i in range(len(classified)):
-        nodes.append({"id" : classified[i].text, "label": classified[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+        nodes.append({"id" : classified[i].block.text, "label": classified[i].block.text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
     
@@ -144,23 +149,25 @@ if __name__ == "__main__":
     # insane computation load; need a smart way to approach this
     # something w/ header nodes, finding links there , then grouping children
     prev_rounded = 0
-    for i in range(len(possible_edges)):
+    for i in range(len(classified)):
         percent = i / len(possible_edges)
         rounded = round(percent, 3)
         start = possible_edges[i][0].text
         end = possible_edges[i][1].text
 
-        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9 and start != end: # arbitrary gate right now; affects the total number of links
-            candidate_edge = {
+        query = ConceptDoc(block=classified[i][1], embedding=classified[i][0])
+        results = db.search(inputs=DocList(docs=[query]), limit=10)
+
+        for m in results[0].matches:
+           
+                links.append({ 
                                 "id" : str(links_created),
                                 # src
-                                "source" : start,
+                                "source" : m[1].text,
                                 # trgt
-                                "target" : end,
+                                "target" : classified[i][1].text,
                                 "label" : "",
-                            }
-            if candidate_edge not in links:
-                links.append(candidate_edge)
+                            })
                 links_created += 1
 
         
