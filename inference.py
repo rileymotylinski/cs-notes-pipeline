@@ -6,23 +6,14 @@ import itertools
 import argparse
 import joblib
 import spacy
-from docarray import BaseDoc, DocList
-from docarray.typing import NdArray
-import numpy as np
-from vectordb import InMemoryExactNNVectorDB
+import chromadb
 import json
 import sys
 import os
 
 
-class ConceptDoc(BaseDoc):
-    block: Block = None
-    embedding: NdArray[128]
 
-
-
-
-def _encode__classify_blocks(blocks: list[Block]) -> list[ConceptDoc]:
+def _encode__classify_blocks(blocks: list[Block]) -> list[tuple[list[int], Block]]:
     """
     purpose: custom wrapper for pytorch embedding + prediction funciton. 
     Handles custom blocks instead of raw text. Important 
@@ -40,7 +31,7 @@ def _encode__classify_blocks(blocks: list[Block]) -> list[ConceptDoc]:
     res = []
     for i in range(len(blocks)):
         if blocks[i].text in classified:
-            res.append(ConceptDoc(blocks[i], X[i]))
+            res.append((X[i],blocks[i]))
     return res
 
 def magnitude(v: list[int]):
@@ -59,6 +50,7 @@ def dot_product(b1: Block, b2: Block):
         total += b1[j] * b2[j]
 
     return total / (magnitude(b1) * magnitude(b2))
+
 
 def _find_links(blocks: list[Block]) -> dict:
     links = {}
@@ -98,7 +90,7 @@ if __name__ == "__main__":
     concepts = []
     parsed_directory = ingest(directory=directory, max_files=max_files)
 
-    classified: list[ConceptDoc] = []
+    classified: list[Block] = []
     i = 0
 
     # parse out files + flatten every concept into a single list
@@ -110,8 +102,7 @@ if __name__ == "__main__":
         
         classified += _encode__classify_blocks(parsed_directory[i].as_concepts())
         i += 1
-    db = InMemoryExactNNVectorDB[ConceptDoc](workspace='./workspace_path')
-    db.index(docs=DocList(docs=[classified]))
+  
     # group concepts by heading
     found_links = _find_links(classified)
 
@@ -123,6 +114,13 @@ if __name__ == "__main__":
         nodes.append({"id" : classified[i].block.text, "label": classified[i].block.text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
+
+    chroma_client = chromadb.Client()
+    vectordb = chroma_client.create_collection(name="concepts")
+    embeddings = [c[0] for c in classified]
+    metadatas = [c[1] for c in classified]
+    vectordb.add(embeddings=embeddings,metadatas=metadatas)
+    
     
     possible_edges = list(itertools.combinations(classified,2))
 
@@ -155,21 +153,18 @@ if __name__ == "__main__":
         start = possible_edges[i][0].text
         end = possible_edges[i][1].text
 
-        query = ConceptDoc(block=classified[i][1], embedding=classified[i][0])
-        results = db.search(inputs=DocList(docs=[query]), limit=10)
-
-        for m in results[0].matches:
-           
-                links.append({ 
-                                "id" : str(links_created),
-                                # src
-                                "source" : m[1].text,
-                                # trgt
-                                "target" : classified[i][1].text,
-                                "label" : "",
-                            })
-                links_created += 1
-
+        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9 and start != end: # arbitrary gate right now; affects the total number of links
+            candidate_edge = {
+                "id" : str(links_created),
+                    # src
+                    "source" : start,
+                    # trgt
+                    "target" : end,
+                    "label" : "",
+            }
+            
+            if candidate_edge not in links:
+                links.append(candidate_edge)
         
         if abs(rounded - prev_rounded) > 0.01:
             print(f"{int(rounded * 100)}%")
@@ -184,4 +179,5 @@ if __name__ == "__main__":
         
     print(f"wrote concepts to {os.getenv("CONCEPTS_DUMP")} in project directory")
 
-    
+
+
