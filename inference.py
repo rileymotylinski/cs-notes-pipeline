@@ -102,27 +102,27 @@ if __name__ == "__main__":
         
         classified += _encode__classify_blocks(parsed_directory[i].as_concepts())
         i += 1
-  
-    # group concepts by heading
-    found_links = _find_links(classified)
+
+    chroma_client = chromadb.Client()
+    vectordb = chroma_client.create_collection(name="concepts")
+    ids = [str(i) for i in range(len(classified))]
+    embeddings = [c[0] for c in classified]
+    blocks = [c[1] for c in classified]
+    vectordb.add(ids=ids,embeddings=embeddings)
 
     nodes = []
     links = []
 
     # create nodes for each concept
     for i in range(len(classified)):
-        nodes.append({"id" : classified[i].block.text, "label": classified[i].block.text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
+        nodes.append({"id" : blocks[i].text, "label": blocks[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
 
-    chroma_client = chromadb.Client()
-    vectordb = chroma_client.create_collection(name="concepts")
-    embeddings = [c[0] for c in classified]
-    metadatas = [c[1] for c in classified]
-    vectordb.add(embeddings=embeddings,metadatas=metadatas)
+    # group concepts by heading
+    found_links = _find_links(blocks)
     
-    
-    possible_edges = list(itertools.combinations(classified,2))
+    possible_edges = list(itertools.combinations(blocks,2))
 
     # link all nodes to their respective header nodes
     for link in found_links:
