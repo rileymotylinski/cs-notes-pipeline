@@ -109,12 +109,12 @@ if __name__ == "__main__":
     embeddings = [c[0] for c in classified]
     blocks = [c[1] for c in classified]
     vectordb.add(ids=ids,embeddings=embeddings)
-
+    
     nodes = []
     links = []
 
     # create nodes for each concept
-    for i in range(len(classified)):
+    for i in range(len(blocks)):
         nodes.append({"id" : blocks[i].text, "label": blocks[i].text}) # this is the json format the frontend expects. RE: ./cs-notes-web-ui/app/components/GraphView.tsx
 
     links_created = 0
@@ -122,21 +122,23 @@ if __name__ == "__main__":
     # group concepts by heading
     found_links = _find_links(blocks)
     
-    possible_edges = list(itertools.combinations(blocks,2))
 
     # link all nodes to their respective header nodes
     for link in found_links:
 
         cur_header_node = {"id" : f"{link}", "label": link}
+        end = cur_header_node["id"]
         nodes.append(cur_header_node)
     
         for i in range(len(found_links[link])):
-
+            start = found_links[link][i].text
+            if start == end:
+                continue
             links.append(
                 {
                     "id" : str(links_created),
-                    "source" : found_links[link][i].text,
-                    "target" : cur_header_node["id"],
+                    "source" : start,
+                    "target" : end,
                     "label" : "",
                 }
                 
@@ -148,24 +150,29 @@ if __name__ == "__main__":
     # something w/ header nodes, finding links there , then grouping children
     prev_rounded = 0
     for i in range(len(classified)):
-        percent = i / len(possible_edges)
+        percent = i / len(classified)
         rounded = round(percent, 3)
-        start = possible_edges[i][0].text
-        end = possible_edges[i][1].text
+        start = blocks[i].text
 
-        if dot_product(embedder.encode(possible_edges[i][0].text), embedder.encode(possible_edges[i][1].text)) > 0.9 and start != end: # arbitrary gate right now; affects the total number of links
+
+        # TODO : use custom embedding function wrapper
+        results = vectordb.query(query_texts=[start])
+        
+        for res in results:
+            if start == res:
+                continue
             candidate_edge = {
                 "id" : str(links_created),
-                    # src
-                    "source" : start,
-                    # trgt
-                    "target" : end,
-                    "label" : "",
+                # src
+                "source" : start,
+                # trgt
+                "target" : res,
+                "label" : "",
             }
             
             if candidate_edge not in links:
                 links.append(candidate_edge)
-        
+
         if abs(rounded - prev_rounded) > 0.01:
             print(f"{int(rounded * 100)}%")
             prev_rounded = rounded
