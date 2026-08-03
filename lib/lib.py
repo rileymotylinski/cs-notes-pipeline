@@ -15,6 +15,12 @@ class ContentType(Enum):
     EQUATION = 6
     TEXT = 7
     NULL = 8
+
+def contains(s: str, blacklist: list[str]):
+    for b in blacklist:
+        if b in s:
+            return True
+    return False
                 
 # TODO : cannot import block module here? I want type annotations
 def is_candidate_concept(block) -> bool:
@@ -26,6 +32,9 @@ def is_candidate_concept(block) -> bool:
 
     # not enough words/letters
     if len(block.text.split()) >= 5 or len(block.text) < 3:
+        return False
+
+    if contains(block.text, ["]", "[", "%", "/", "\\"]):
         return False
     
     # bullet points
