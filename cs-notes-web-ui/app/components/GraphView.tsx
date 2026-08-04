@@ -24,6 +24,24 @@ export const SimpleGraph: FC = () => {
           theme={darkTheme}
           nodes={concepts.nodes}
           edges={concepts.links}
+          renderNode={({ size, color, opacity, selected, id }) => (
+            <group>
+              <mesh>
+                <torusKnotGeometry attach="geometry" args={[size, 1.25, 50, 8]} />
+                <meshBasicMaterial
+                  attach="material"
+                  color={color}
+                  opacity={opacity}
+                  transparent
+                  onUpdate={() => { 
+                    if (selected) {
+                      console.log("hello")
+                    }
+                  }}
+                />
+              </mesh>
+            </group>
+          )}
           
         />
       </div>
