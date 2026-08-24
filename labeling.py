@@ -24,8 +24,19 @@ def encode_bool(val: bool):
 if __name__ == "__main__":
     dir = "/lib/test_notes/"
 
+    parser = argparse.ArgumentParser(
+        prog="Concept Labeler",
+        description="Label (roughly) inferenced concepts from documents",
+    )
+    # positional argument (1) for file
+    
+    parser.add_argument("directory")
+
+    args = parser.parse_args()
+    directory = args.directory
+  
     # TODO: accept course_code and semester as arguments
-    processed_docs = ingest(directory=dir, course_code="csci2021", semester="2")
+    processed_docs = ingest(directory=directory, course_code="csci2021", semester="2")
     print(f"total processed documents: {len(processed_docs)}")
 
     if not processed_docs:

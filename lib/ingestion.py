@@ -73,6 +73,7 @@ def handle_directory_input(directory, course_code, semester, max_files=-1) -> li
     i = 0
    
     while i < len(files) and (max_files == -1 or i < max_files):
+        
         processed = handle_file_input(f"{directory}/{files[i]}", course_code, semester)
 
         if not processed:
@@ -92,14 +93,16 @@ def ingest(filename=None, directory=None, course_code="", semester="", max_files
     receives either a file or directory and spits out a processed document object
     """
     res = None
-
+   
     if filename != None and directory != None:
         print("cannot process both directory and file")
 
     elif filename != None:
+        
         res = handle_file_input(filename, course_code, semester)
     
     elif directory != None:
+        
         res = handle_directory_input(directory, course_code, semester, max_files)
 
     return res

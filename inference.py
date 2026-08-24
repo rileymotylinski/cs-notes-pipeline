@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from lib.ingestion import ingest
 from dotenv import load_dotenv
 from lib.block import Block
-import itertools
+
 import argparse
 import joblib
 import spacy
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     )
     # positional argument (1) for file
     
-    parser.add_argument("-d", "--directory")
+    parser.add_argument("directory")
     parser.add_argument("-m", "--max")  
 
     args = parser.parse_args()
@@ -92,10 +92,10 @@ if __name__ == "__main__":
 
     classified: list[Block] = []
     i = 0
-
+    
     # parse out files + flatten every concept into a single list
     while (max_files == -1 or i < max_files) and i < len(parsed_directory):
-     
+        
         if not parsed_directory[i]:
             print(f"unable to parse document!")
             sys.exit()
